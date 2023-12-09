@@ -1,4 +1,4 @@
-package model.schedule;
+package model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,11 @@ import java.util.Objects;
 
 public class Task {
     protected String name;
+
     protected int id;
+
     protected String description;
+
     protected String status;
 
     public Task(String name, String description) {

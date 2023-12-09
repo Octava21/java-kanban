@@ -1,7 +1,8 @@
-import model.schedule.Epic;
-import model.schedule.Subtask;
-import model.schedule.Task;
-import service.schedule.TaskManager;
+package service;
+
+import model.Epic;
+import model.Subtask;
+import model.Task;
 
 public class Main {
     public static void main(String[] args) {

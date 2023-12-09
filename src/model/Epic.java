@@ -1,7 +1,6 @@
-package model.schedule;
+package model;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class Epic extends Task {
   private ArrayList<Integer> subTaskId;

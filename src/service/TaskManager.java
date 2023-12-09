@@ -1,13 +1,13 @@
-package service.schedule;
+package service;
 
-import model.schedule.Epic;
-import model.schedule.Subtask;
-import model.schedule.Task;
-import model.schedule.TaskStatus;
+import model.Epic;
+import model.Subtask;
+import model.Task;
+import model.TaskStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.List;
 public class TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
@@ -38,9 +38,10 @@ public class TaskManager {
     }
 
     // Получение списка task
-    public ArrayList<Task> getTasks() {
+    public List<Task> getTasks() {
         return new ArrayList<>(tasks.values());
     }
+
 
     public ArrayList<Subtask> getSubtasks() {
         return new ArrayList<>(subtasks.values());
@@ -62,20 +63,6 @@ public class TaskManager {
 
     public Epic getEpicById(int id) {
         return epics.get(id);
-    }
-
-    // Удаление задач/подзадач/эпиков
-
-    public void deleteTasks() {
-        tasks.clear();
-    }
-
-    public void deleteEpics() {
-        epics.clear();
-    }
-
-    public void deleteSubtasks() {
-        subtasks.clear();
     }
 
     // Удаление всех списка всех задач (Задача/Эпик/Подзадача)
@@ -171,55 +158,26 @@ public class TaskManager {
         int newTask = 0;
         int inProgress = 0;
         int doneTask = 0;
-        if (!epicSubtaskIds.isEmpty()) {
-            for (int subtaskId : epicSubtaskIds) {
-                TaskStatus subtaskStatus = TaskStatus.valueOf(subtasks.get(subtaskId).getStatus());
 
-                switch (subtaskStatus) {
-                    case DONE:
-                        doneTask++;
-                        break;
-                    case NEW:
-                        newTask++;
-                        break;
-                    case IN_PROGRESS:
-                        inProgress++;
-                        break;
-                    // Добавьте другие статусы при необходимости
-                    default:
-                        break;
-                }
+        for (int subtaskId : epicSubtaskIds) {
+            TaskStatus subtaskStatus = TaskStatus.valueOf(subtasks.get(subtaskId).getStatus());
+
+            switch (subtaskStatus) {
+                case DONE:
+                    doneTask++;
+                    break;
+                case NEW:
+                    newTask++;
+                    break;
+                case IN_PROGRESS:
+                    return TaskStatus.IN_PROGRESS; // Если есть IN_PROGRESS, возвращаем сразу
+                // Добавьте другие статусы при необходимости
+                default:
+                    break;
             }
-        } else {
-            return TaskStatus.NEW;
         }
-        if (newTask > 0 && inProgress == 0 && doneTask == 0) {
-            return TaskStatus.NEW;
-        }
-        if (inProgress > 0) {
-            return TaskStatus.IN_PROGRESS;
-        }
-        if (doneTask > 0 && inProgress == 0 && newTask == 0) {
-            return TaskStatus.DONE;
-        }
-        if (doneTask > 0 && inProgress == 0 && newTask > 0) {
-            return TaskStatus.IN_PROGRESS;
-        }
-        return TaskStatus.NEW;
+
+        // Проверяем наличие завершенных подзадач и возвращаем соответствующий статус
+        return (doneTask > 0) ? TaskStatus.DONE : TaskStatus.NEW;
     }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

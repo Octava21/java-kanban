@@ -1,4 +1,4 @@
-package model.schedule;
+package model;
 
 public enum TaskStatus {
         NEW,
