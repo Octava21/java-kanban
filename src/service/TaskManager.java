@@ -32,10 +32,17 @@ public class TaskManager {
 
     public int addNewSubtask(Subtask subtask) {
         subtask.setId(++nextId);
-        subtasks.put(subtask.getId() , subtask);
-        epics.get(subtask.getEpicId()).addSubTaskId(subtask.getId());
+        subtasks.put(subtask.getId(), subtask);
+
+        Epic epic = epics.get(subtask.getEpicId());
+        if (epic != null) {
+            epic.addSubTaskId(subtask.getId());
+            calculateEpicStatus(epic.getId());
+        }
+
         return subtask.getId();
     }
+
 
     // Получение списка task
     public List<Task> getTasks() {
