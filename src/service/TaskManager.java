@@ -105,7 +105,8 @@ public class TaskManager {
 
             Epic epic = getEpicById(subtask.getEpicId());
             if (epic != null) {
-                calculateEpicStatus(epic.getId());
+                TaskStatus status = calculateEpicStatus(epic.getId());
+                epic.setStatus(status.name());
             }
         }
     }
