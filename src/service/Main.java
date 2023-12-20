@@ -1,12 +1,13 @@
 package service;
 
+import Managers.InMemoryTaskManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
 
 public class Main {
     public static void main(String[] args) {
-        TaskManager manager = new TaskManager();
+        InMemoryTaskManager manager = new InMemoryTaskManager();
 
         System.out.println("--------------* СОЗДАНИЕ ЗАДАЧ: *------------------");
         Task taskToCreate = new Task("Задача №1", "Съездить за продуктами");
