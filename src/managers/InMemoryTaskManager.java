@@ -12,8 +12,8 @@ import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Task> tasks = new HashMap<>();
-    private final HashMap<Integer, Epic> epics = new HashMap<>();
-    private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    private final Map<Integer, Epic> epics = new HashMap<>();
+    private final Map<Integer, Subtask> subtasks = new HashMap<>();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     private int nextId = 0;
@@ -53,11 +53,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Subtask> getSubtasks() {
+    public List<Subtask> getSubtasks() {
         return new ArrayList<>(subtasks.values());
     }
     @Override
-    public ArrayList<Epic> getEpics() {
+    public List<Epic> getEpics() {
         return new ArrayList<>(epics.values());
     }
 
@@ -148,10 +148,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Получение списка всех подзадач эпика
     @Override
-    public ArrayList<Subtask> getSubtasksByEpicId(int epicId) {
+    public List<Subtask> getSubtasksByEpicId(int epicId) {
         Epic epic = getEpicById(epicId);
         if (epic != null) {
-            ArrayList<Subtask> subtasks = new ArrayList<>();
+            List<Subtask> subtasks = new ArrayList<>();
             for (Integer subtaskId : epic.getSubTaskId()) {
                 Subtask subtask = getSubtaskById(subtaskId);
                 if (subtask != null) {

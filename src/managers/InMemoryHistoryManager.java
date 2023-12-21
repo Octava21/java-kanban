@@ -5,13 +5,13 @@ import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
    private static final int LIMIT_HISTORY_TASK = 10;
-   private final LinkedList<Task> historyTasks = new LinkedList<>();
+   private final  List<Task> historyTasks = new LinkedList<>();
 
    @Override
    public void add(Task task) {
       if (historyTasks.size() >= LIMIT_HISTORY_TASK) {
          // Если достигнут лимит, удаляем самую старую задачу
-         historyTasks.removeFirst();
+         historyTasks.remove(0);
       }
       historyTasks.add(task);
    }
