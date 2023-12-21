@@ -1,6 +1,4 @@
-package Managers;
-import java.util.List;
-import model.Task;
+package managers;
 
 
 public class Managers {

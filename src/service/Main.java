@@ -1,6 +1,6 @@
 package service;
 
-import Managers.InMemoryTaskManager;
+import managers.InMemoryTaskManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
