@@ -73,9 +73,9 @@ public class Main {
         System.out.println(manager.getSubtasks());
 
         System.out.println("--------------* УДАЛЕНИЕ ЗАДАЧ: *----------------");
-        manager.deleteTaskById(taskId1);
-        manager.deleteEpicById(epicId2);
-        manager.deleteSubtaskById(subtaskId3);
+        manager.deleteTaskById(1);
+        manager.deleteEpicById(2);
+        manager.deleteSubtaskById(3);
 
         System.out.println(manager.getTasks());
         System.out.println(manager.getEpics());
