@@ -38,9 +38,9 @@ public class InMemoryHistoryManager implements HistoryManager {
       private Map<Integer, Node> taskPositions = new HashMap<>();
       private Node head;
       private Node tail;
-      private int size;
 
-      void linkLast(Task task) {
+
+     private void linkLast(Task task) {
          Node element = new Node(task);
 
          // Если задача уже существует в списке, удаляем её
@@ -61,11 +61,11 @@ public class InMemoryHistoryManager implements HistoryManager {
          }
 
          taskPositions.put(task.getId(), element);
-         size++;
+
       }
 
 
-      void remove(int taskId) {
+     private void remove(int taskId) {
          Node removedNode = taskPositions.remove(taskId);
          if (removedNode != null) {
             if (removedNode == head) {
@@ -80,11 +80,11 @@ public class InMemoryHistoryManager implements HistoryManager {
             if (removedNode.getNext() != null) {
                removedNode.getNext().setPrev(removedNode.getPrev());
             }
-            size--;
+
          }
       }
 
-      List<Task> getTasks() {
+    private   List<Task> getTasks() {
          List<Task> result = new LinkedList<>();
          Node current = head;
          while (current != null) {
@@ -94,8 +94,8 @@ public class InMemoryHistoryManager implements HistoryManager {
          return result;
       }
 
-      int size() {
-         return size;
+     private int size() {
+        return taskPositions.size();
       }
    }
 }
