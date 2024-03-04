@@ -20,7 +20,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         this.file = file;
     }
 
-    public void save() {
+    private void save() {
 
         try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8)) {
             writer.write(HEADER);
@@ -41,11 +41,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
                     writer.write("\n" + historyToString(Managers.getDefaultHistory()) + "\n");
 
                 }
+
             } catch (IOException e) {
-                throw new RuntimeException("Ошибка при записи в файл: " + e.getMessage(), e);
+                throw new ManagerSaveException("Ошибка при записи в файл: " + e.getMessage(), e);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Не удалось создать BufferedWriter: " + e.getMessage(), e);
+            throw new ManagerSaveException("Не удалось найти файл для записи данных");
         }
     }
 
@@ -79,12 +80,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         }
     }
 
-    static String historyToString(HistoryManager managers) {
+    private static String historyToString(HistoryManager managers) {
         return managers.toString();
 
     }
 
-    static List<Integer> historyFromString(String value) {
+    private static List<Integer> historyFromString(String value) {
         List<Integer> historyIDS = new ArrayList<>();
         if(value != null) {
             String[] parts = value.split(",");
@@ -95,7 +96,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         return historyIDS;
     }
 
-    public String toString(Task task) {
+    private String toString(Task task) {
         if (task instanceof Epic epic) {
             return epic.toString();
         } else if (task instanceof Subtask subtask) {
