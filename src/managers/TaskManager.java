@@ -6,6 +6,7 @@ import model.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public interface TaskManager {
     int addNewTask(Task task);
@@ -13,6 +14,12 @@ public interface TaskManager {
     int addNewEpic(Epic epic);
 
     int addNewSubtask(Subtask subtask);
+
+    Map<Integer, Task> getTaskHashMap();
+
+    Map<Integer, Epic> getEpicHashMap();
+
+    List<Subtask> getSubTaskList();
 
     List<Task> getTasks();
 
