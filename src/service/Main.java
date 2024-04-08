@@ -4,6 +4,7 @@ import managers.InMemoryTaskManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
+import model.TaskStatus;
 
 public class Main {
     public static void main(String[] args) {
@@ -19,16 +20,16 @@ public class Main {
         Epic epicToCreate = new Epic("Купить фруктов", "Составить список", "NEW");
         final int epicId1 = manager.addNewEpic(epicToCreate);
 
-        Subtask subtaskToCreate = new Subtask("Яблоки", "Груша", "NEW", epicId1);
+        Subtask subtaskToCreate = new Subtask("Яблоки", "Груша", TaskStatus.NEW, epicId1);
         final int subtaskId1 = manager.addNewSubtask(subtaskToCreate);
 
-        subtaskToCreate = new Subtask("Фрукты для Мамы", "Виноград, черника", "NEW", epicId1);
+        subtaskToCreate = new Subtask("Фрукты для Мамы", "Виноград, черника", TaskStatus.NEW, epicId1);
         final int subtaskId2 = manager.addNewSubtask(subtaskToCreate);
 
         epicToCreate = new Epic("Поездка с друзьями в горы", "Список дел", "NEW");
         final int epicId2 = manager.addNewEpic(epicToCreate);
 
-        subtaskToCreate = new Subtask("Позвонить", "Уточнить дату и список вещей", "NEW", epicId1);
+        subtaskToCreate = new Subtask("Позвонить", "Уточнить дату и список вещей", TaskStatus.NEW, epicId1);
         final int subtaskId3 = manager.addNewSubtask(subtaskToCreate);
 
         System.out.println("--------------*-------------------*----------------");
@@ -36,13 +37,13 @@ public class Main {
         Task taskToUpdated = manager.getTaskById(taskId1);
         taskToUpdated.setName("Задача №1");
         taskToUpdated.setDescription("Покупка мясных продуктов");
-        taskToUpdated.setStatus("DONE");
+        taskToUpdated.setStatus(TaskStatus.DONE);
         manager.updateTask(taskToUpdated);
 
         taskToUpdated = manager.getTaskById(taskId2);
         taskToUpdated.setName("Задача №2");
         taskToUpdated.setDescription("Купить скакалку");
-        taskToUpdated.setStatus("IN_PROGRESS");
+        taskToUpdated.setStatus(TaskStatus.IN_PROGRESS);
         manager.updateTask(taskToUpdated);
 
         // ---Обновление первого эпика---------------------------------
@@ -51,11 +52,11 @@ public class Main {
 
         Subtask subtaskToUpdated = manager.getSubtaskById(subtaskId1);
         subtaskToUpdated.setDescription("Хурма, Личи");
-        subtaskToUpdated.setStatus("DONE");
+        subtaskToUpdated.setStatus(TaskStatus.DONE);
         manager.updateSubtask(subtaskToUpdated);
 
         subtaskToUpdated = manager.getSubtaskById(subtaskId2);
-        subtaskToUpdated.setStatus("DONE");
+        subtaskToUpdated.setStatus(TaskStatus.DONE);
         manager.updateSubtask(subtaskToUpdated);
 
         // ---Обновление второго эпика---------------------------------
@@ -64,7 +65,7 @@ public class Main {
 
         subtaskToUpdated = manager.getSubtaskById(subtaskId3);
         subtaskToUpdated.setDescription("Хурма, Личи");
-        subtaskToUpdated.setStatus("DONE");
+        subtaskToUpdated.setStatus(TaskStatus.DONE);
         manager.updateSubtask(subtaskToUpdated);
 
         System.out.println("--------------*-------------------*----------------");

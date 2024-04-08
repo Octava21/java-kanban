@@ -1,31 +1,57 @@
 package managers;
 
+import exceptions.TimeIntersectionException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
 import model.TaskStatus;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.TreeSet;
+
 
 public class InMemoryTaskManager implements TaskManager {
     public final Map<Integer, Task> tasks = new HashMap<>();
     public final Map<Integer, Epic> epics = new HashMap<>();
     public final Map<Integer, Subtask> subtasks = new HashMap<>();
     public final HistoryManager historyManager = Managers.getDefaultHistory();
-
+    protected TreeSet<Task> prioritiziedTasks;
     private int nextId = 0;
+
+    public InMemoryTaskManager() {
+        prioritiziedTasks = new TreeSet<>((Task o1, Task o2) -> {
+            if (o1.getStartTime() != null && o2.getStartTime() != null) {
+                if (o1.getStartTime().isAfter(o2.getStartTime())) {
+                    return 1;
+                } else if (o1.getStartTime() == (o2.getStartTime())) {
+                    return -1;
+                }
+            } else if (o1.getStartTime() == null && o2.getStartTime() != null) {
+                return 1;
+            } else if (o1.getStartTime() != null && o2.getStartTime() == null) {
+                return -1;
+            }
+            return -1;
+        });
+    }
 
 
     // Добавление новой task
     @Override
     public int addNewTask(Task task) {
+        if (!timeIntersectionCheck(task, this.prioritiziedTasks)) {
+            throw new TimeIntersectionException("Таска не создана из-за пересечения по времени");
+        }
+
         task.setId(++nextId);
         tasks.put(task.getId(), task);
         return task.getId();
     }
+
     @Override
     public int addNewEpic(Epic epic) {
         epic.setId(++nextId);
@@ -125,7 +151,7 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = getEpicById(subtask.getEpicId());
             if (epic != null) {
                 TaskStatus status = calculateEpicStatus(epic.getId());
-                epic.setStatus(status.name());
+                epic.setStatus(TaskStatus.valueOf(status.name()));
             }
         }
     }
@@ -188,6 +214,12 @@ public class InMemoryTaskManager implements TaskManager {
         return new ArrayList<>();
     }
 
+    @Override
+    public TreeSet<Task> getPrioritizedTasks() {
+        return prioritiziedTasks;
+    }
+
+
 
 
     // Расчет статуса эпика по id
@@ -198,7 +230,7 @@ public class InMemoryTaskManager implements TaskManager {
         int doneTask = 0;
 
         for (int subtaskId : epicSubtaskIds) {
-            TaskStatus subtaskStatus = TaskStatus.valueOf(subtasks.get(subtaskId).getStatus());
+            TaskStatus subtaskStatus = TaskStatus.valueOf(String.valueOf(subtasks.get(subtaskId).getStatus()));
 
             switch (subtaskStatus) {
                 case DONE:
@@ -224,4 +256,77 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
 
     }
+
+
+    private boolean timeIntersectionCheck(Task task, Collection<? extends Task> tasksTreeSet) {
+        if (task.getStartTime() != null) {
+            LocalDateTime taskStartTime = task.getStartTime();
+            LocalDateTime taskEndTime = task.getEndTime();
+
+            for (Task taskFromSet : tasksTreeSet) {
+                LocalDateTime startTime = taskFromSet.getStartTime();
+                LocalDateTime endTime = taskFromSet.getEndTime();
+
+                if ((startTime != null && startTime.isBefore(taskEndTime) && endTime != null && endTime.isAfter(taskStartTime)) ||
+                        (startTime != null && startTime.isEqual(taskEndTime)) || (endTime != null && endTime.isEqual(taskStartTime))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private void epicDurationUpdater(Epic epic, Map<Integer, Subtask> subtaskMap) {
+        if (subtaskMap.containsKey(epic.getSubTaskId().stream().findFirst())) {
+
+            LocalDateTime epicStartTime = Objects.requireNonNull(epic.getSubTaskId().stream()
+                    .map(subtaskMap::get)
+                    .min(Comparator.comparing(Task::getStartTime, Comparator.nullsFirst(Comparator.reverseOrder())))
+                    .stream().findFirst().orElse(null)).getStartTime();
+
+            if (epicStartTime != null) {
+                LocalDateTime epicEndTime = Objects.requireNonNull(epic.getSubTaskId().stream()
+                        .map(subtaskMap::get)
+                        .max(Comparator.comparing(Task::getEndTime))
+                        .stream().findFirst().orElse(null)).getEndTime();
+
+                epic.setStartTime(epicStartTime);
+                epic.setDuration(Duration.between(epicStartTime, epicEndTime));
+            } else {
+                epic.setStartTime(null);
+                epic.setDuration(null);
+            }
+        }
+    }
+
+
+
+
+
+    private void epicStatusUpdater(Epic epic, Map<Integer, Subtask> subtaskMap) {
+        Collection<Integer> listOfSubTasks = epic.getSubTaskId();
+        int counterSameStatus = 0;
+        TaskStatus firstSubtaskStatus = null;
+
+        for (Integer idSubtask : listOfSubTasks) {
+            Subtask subtask = getSubtaskById(idSubtask);
+            TaskStatus currentStatus = subtask.getStatus();
+
+            if (firstSubtaskStatus == null) {
+                firstSubtaskStatus = currentStatus;
+            }
+
+            if (!firstSubtaskStatus.equals(currentStatus)) {
+                epic.setStatus(TaskStatus.IN_PROGRESS); // Устанавливаем статус эпика IN_PROGRESS
+                return; // Выходим из цикла
+            } else {
+                counterSameStatus++;
+            }
+        }
+
+        // Если все подзадачи имеют одинаковый статус, устанавливаем этот статус для эпика
+        if (counterSameStatus == listOfSubTasks.size()) {
+            epic.setStatus(firstSubtaskStatus);
+        }
+    }
+
 }

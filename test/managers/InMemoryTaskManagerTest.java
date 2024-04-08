@@ -34,22 +34,19 @@ class InMemoryTaskManagerTest {
 
     @Test
     public void testAddAndFindEpics() {
-        Epic epic1 = new Epic("Epic 1", "Description 1","NEW");
-        Epic epic2 = new Epic("Epic 2", "Description 2","NEW");
-
-
-
+        Epic epic1 = new Epic("Epic 1", "Description 1", "NEW");
+        Epic epic2 = new Epic("Epic 2", "Description 2", "NEW");
 
         assertEquals(epic1.getId(), epic2.getId());
     }
 
     @Test
     public void testAddAndFindSubTasks() {
-        Subtask subTask1 = new Subtask("SubTask 1", "Description 1", "NEW", 1);
-        Subtask subTask2 = new Subtask("SubTask 2", "Description 2", "NEW", 2);
+        int epicId1 = 1;
+        int epicId2 = 2;
 
-
-
+        Subtask subTask1 = new Subtask("SubTask 1", "Description 1", epicId1, "2024-04-08T09:00:00", "duration1");
+        Subtask subTask2 = new Subtask("SubTask 2", "Description 2", epicId2, "2024-04-08T10:30:00", "duration2");
 
         assertEquals(subTask1.getId(), subTask2.getId());
     }
@@ -69,7 +66,7 @@ class InMemoryTaskManagerTest {
     @Test
     public void testDeleteEpicForId() {
         Epic epic = new Epic("Epic 1", "Description 1","NEW");
-         int epicId = taskManager.addNewEpic(epic);
+        int epicId = taskManager.addNewEpic(epic);
 
         taskManager.deleteEpicById(epicId);
 
@@ -78,8 +75,9 @@ class InMemoryTaskManagerTest {
 
     @Test
     public void testDeleteSubTaskForId() {
-        Subtask subtask = new Subtask("SubTask 1", "Description 1", "NEW", 1);
-       int subtaskId = taskManager.addNewTask(subtask);
+        int epicId = 1;
+        Subtask subtask = new Subtask("SubTask 1", "Description 1", epicId, "2024-04-08T09:00:00" ,  "duration1");
+        int subtaskId = taskManager.addNewSubtask(subtask);
 
         taskManager.deleteSubtaskById(subtaskId);
 
@@ -93,7 +91,7 @@ class InMemoryTaskManagerTest {
 
         task.setName("Updated Task");
         task.setDescription("Updated Description");
-        task.setStatus("NEW");
+        task.setStatus(TaskStatus.NEW);
 
         taskManager.updateTask(task);
 
@@ -109,13 +107,13 @@ class InMemoryTaskManagerTest {
         Epic epic = new Epic("Epic 1", "Description 1", "NEW");
         int epicId = taskManager.addNewEpic(epic);
 
-        Subtask subTask1 = new Subtask("SubTask 1", "Description 1", "DONE", epicId);
-        Subtask subTask2 = new Subtask("SubTask 2", "Description 2", "IN PROGRESS", epicId);
+        Subtask subTask1 = new Subtask("SubTask 1", "Description 1", epicId, "2024-04-08T10:00:00", "PT2H");
+        Subtask subTask2 = new Subtask("SubTask 2", "Description 2", epicId, "2024-04-08T10:00:00", "PT2H");
 
         taskManager.addNewSubtask(subTask1);
         taskManager.addNewSubtask(subTask2);
 
-        epic.setStatus("IN PROGRESS");
+        epic.setStatus(TaskStatus.IN_PROGRESS);
         taskManager.updateEpic(epic);
 
         Epic updatedEpic = taskManager.getEpicById(epicId);
@@ -158,8 +156,11 @@ class InMemoryTaskManagerTest {
 
     @Test
     public void testGetAllSubTasks() {
-        Subtask subTask1 = new Subtask("SubTask 1", "Description 1", "NEW", 1);
-        Subtask subTask2 = new Subtask("SubTask 2", "Description 2", "NEW", 2);
+        int epicId1 = 1;
+        int epicId2 = 2;
+        Subtask subTask1 = new Subtask("SubTask 1", "Description 1", epicId1, "2024-04-08T09:00:00", "duration1");
+        Subtask subTask2 = new Subtask("SubTask 2", "Description 2", epicId2,  "2024-04-08T10:30:00", "duration2");
+
 
         taskManager.addNewSubtask(subTask1);
         taskManager.addNewSubtask(subTask2);
@@ -203,8 +204,11 @@ class InMemoryTaskManagerTest {
 
     @Test
     public void testDeleteAllSubTasks() {
-        Subtask subTask1 = new Subtask("SubTask 1", "Description 1", "NEW", 1);
-        Subtask subTask2 = new Subtask("SubTask 2", "Description 2", "NEW", 2);
+        int epicId1 = 1;
+        int epicId2 = 2;
+
+        Subtask subTask1 = new Subtask("SubTask 1", "Description 1", epicId1, "2024-04-08T09:00:00", "duration1");
+        Subtask subTask2 = new Subtask("SubTask 2", "Description 2", epicId2, "2024-04-08T10:30:00", "duration2");
 
         taskManager.addNewSubtask(subTask1);
         taskManager.addNewSubtask(subTask2);
@@ -215,4 +219,5 @@ class InMemoryTaskManagerTest {
 
         assertEquals(0, allSubTasks.size());
     }
+
 }
