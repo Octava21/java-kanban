@@ -1,2 +1,2 @@
-# java-sprint6-final
+# java-sprint8-final
 Repository for homework project.
