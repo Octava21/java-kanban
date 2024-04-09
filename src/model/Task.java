@@ -22,14 +22,14 @@ public class Task {
         this.status = TaskStatus.NEW;
     }
 
-    public Task(String name, String description, String startTime, String duration) {
+    public Task(String name, String description, String startTime, Long duration) {
         this.name = name;
         this.description = description;
         if (startTime != null) {
             this.startTime = LocalDateTime.parse(startTime, dateTimeFormatter);
         }
         if (duration != null) {
-            this.duration = Duration.ofMinutes(Long.parseLong(duration));
+            this.duration = Duration.ofMinutes(Long.parseLong(String.valueOf(duration)));
         }
         this.status = TaskStatus.NEW;
     }
@@ -103,5 +103,4 @@ public class Task {
 
     }
 
-    public abstract TaskType getType();
 }
