@@ -2,10 +2,7 @@ package model;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 
 public class Task {
     protected String name;
@@ -13,8 +10,8 @@ public class Task {
     protected String description;
     protected TaskStatus status;
     protected Duration duration;
-    private LocalDateTime startTime;
-    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
+    protected LocalDateTime startTime;
+    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
 
     public Task(String name, String description) {
         this.name = name;
@@ -29,7 +26,7 @@ public class Task {
             this.startTime = LocalDateTime.parse(startTime, dateTimeFormatter);
         }
         if (duration != null) {
-            this.duration = Duration.ofMinutes(Long.parseLong(String.valueOf(duration)));
+            this.duration = Duration.ofMinutes(duration);
         }
         this.status = TaskStatus.NEW;
     }

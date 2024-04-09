@@ -158,7 +158,6 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-
     // Удаление по id
     @Override
     public void deleteTaskById(int id) {
@@ -222,10 +221,6 @@ public class InMemoryTaskManager implements TaskManager {
         return prioritiziedTasks;
     }
 
-
-
-
-
     // Расчет статуса эпика по id
     private TaskStatus calculateEpicStatus(int epicId) {
         ArrayList<Integer> epicSubtaskIds = epics.get(epicId).getSubTaskId();
@@ -260,7 +255,6 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
 
     }
-
 
     private boolean timeIntersectionCheck(Task task, Collection<? extends Task> tasksTreeSet) {
         if (task.getStartTime() != null) {
@@ -301,32 +295,4 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
     }
-
-    private void epicStatusUpdater(Epic epic, Map<Integer, Subtask> subtaskMap) {
-        Collection<Integer> listOfSubTasks = epic.getSubTaskId();
-        int counterSameStatus = 0;
-        TaskStatus firstSubtaskStatus = null;
-
-        for (Integer idSubtask : listOfSubTasks) {
-            Subtask subtask = getSubtaskById(idSubtask);
-            TaskStatus currentStatus = subtask.getStatus();
-
-            if (firstSubtaskStatus == null) {
-                firstSubtaskStatus = currentStatus;
-            }
-
-            if (!firstSubtaskStatus.equals(currentStatus)) {
-                epic.setStatus(TaskStatus.IN_PROGRESS); // Устанавливаем статус эпика IN_PROGRESS
-                return; // Выходим из цикла
-            } else {
-                counterSameStatus++;
-            }
-        }
-
-        // Если все подзадачи имеют одинаковый статус, устанавливаем этот статус для эпика
-        if (counterSameStatus == listOfSubTasks.size()) {
-            epic.setStatus(firstSubtaskStatus);
-        }
-    }
-
 }
