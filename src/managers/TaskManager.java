@@ -6,7 +6,7 @@ import model.Task;
 
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
+import java.util.Set;
 
 public interface TaskManager {
     int addNewTask(Task task);
@@ -54,5 +54,5 @@ public interface TaskManager {
     List<Task> getHistory();
     List<Subtask> getSubtasksByEpicId(int epicId);
 
-    TreeSet<Task> getPrioritizedTasks();
+    Set<Task> getPrioritizedTasks();
 }

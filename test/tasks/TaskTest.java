@@ -20,7 +20,7 @@ public class TaskTest {
     }
 
     @Test
-    public void TaskEquality() {
+    public void taskEquality() {
         Task task1 = new Task("Task 1", "Description 1");
         Task task2 = new Task("Task 1", "Description 1");
 
@@ -31,7 +31,7 @@ public class TaskTest {
     }
 
     @Test
-    public void CalculateEndTime() {
+    public void calculateEndTime() {
         Task task1 = new Task("Task 1", "Description 1");
 
         task1.setId(1);

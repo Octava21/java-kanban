@@ -7,9 +7,7 @@ import model.Task;
 import model.TaskStatus;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.TreeSet;
 
@@ -19,26 +17,21 @@ public class InMemoryTaskManager implements TaskManager {
     public final Map<Integer, Epic> epics = new HashMap<>();
     public final Map<Integer, Subtask> subtasks = new HashMap<>();
     public final HistoryManager historyManager = Managers.getDefaultHistory();
-    protected TreeSet<Task> prioritiziedTasks;
     private int nextId = 0;
-
-    public InMemoryTaskManager() {
-        prioritiziedTasks = new TreeSet<>((Task o1, Task o2) -> {
-            if (o1.getStartTime() != null && o2.getStartTime() != null) {
-                if (o1.getStartTime().isAfter(o2.getStartTime())) {
-                    return 1;
-                } else if (o1.getStartTime() == (o2.getStartTime())) {
-                    return -1;
-                }
-            } else if (o1.getStartTime() == null && o2.getStartTime() != null) {
+    protected TreeSet<Task> prioritiziedTasks = new TreeSet<>((Task o1, Task o2) -> {
+        if (o1.getStartTime() != null && o2.getStartTime() != null) {
+            if (o1.getStartTime().isAfter(o2.getStartTime())) {
                 return 1;
-            } else if (o1.getStartTime() != null && o2.getStartTime() == null) {
+            } else if (o1.getStartTime().equals(o2.getStartTime())) {
                 return -1;
             }
+        } else if (o1.getStartTime() == null && o2.getStartTime() != null) {
+            return 1;
+        } else if (o1.getStartTime() != null && o2.getStartTime() == null) {
             return -1;
-        });
-    }
-
+        }
+        return -1;
+    });
 
     // Добавление новой task
     @Override
@@ -49,6 +42,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         task.setId(++nextId);
         tasks.put(task.getId(), task);
+        prioritiziedTasks.add(task); // Добавляем задачу в приоритетизированный список
         return task.getId();
     }
 
@@ -60,6 +54,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
     @Override
     public int addNewSubtask(Subtask subtask) {
+
+        if (!timeIntersectionCheck(subtask, this.prioritiziedTasks)) {
+            throw new TimeIntersectionException("Подзадача не создана из-за пересечения по времени");
+        }
+
         subtask.setId(++nextId);
         subtasks.put(subtask.getId(), subtask);
 
@@ -67,8 +66,10 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic != null) {
             epic.addSubTaskId(subtask.getId());
             TaskStatus status = calculateEpicStatus(epic.getId());
+            epicDurationUpdater(epic, subtasks); // Вызываем метод для обновления длительности эпика
         }
 
+        prioritiziedTasks.add(subtask); // Добавляем подзадачу в приоритетизированный список
         return subtask.getId();
     }
 
@@ -152,10 +153,10 @@ public class InMemoryTaskManager implements TaskManager {
             if (epic != null) {
                 TaskStatus status = calculateEpicStatus(epic.getId());
                 epic.setStatus(TaskStatus.valueOf(status.name()));
+                epicDurationUpdater(epic, subtasks);
             }
         }
     }
-
 
     // Удаление по id
     @Override
@@ -171,6 +172,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (epic != null) {
                 getSubtasks().remove(subtask);
                 TaskStatus status = calculateEpicStatus(epic.getId());
+                epicDurationUpdater(epic, subtasks);
 
             }
         }
@@ -215,12 +217,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public TreeSet<Task> getPrioritizedTasks() {
+    public Set<Task> getPrioritizedTasks() {
         return prioritiziedTasks;
     }
-
-
-
 
     // Расчет статуса эпика по id
     private TaskStatus calculateEpicStatus(int epicId) {
@@ -256,7 +255,6 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
 
     }
-
 
     private boolean timeIntersectionCheck(Task task, Collection<? extends Task> tasksTreeSet) {
         if (task.getStartTime() != null) {
@@ -297,36 +295,4 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
     }
-
-
-
-
-
-    private void epicStatusUpdater(Epic epic, Map<Integer, Subtask> subtaskMap) {
-        Collection<Integer> listOfSubTasks = epic.getSubTaskId();
-        int counterSameStatus = 0;
-        TaskStatus firstSubtaskStatus = null;
-
-        for (Integer idSubtask : listOfSubTasks) {
-            Subtask subtask = getSubtaskById(idSubtask);
-            TaskStatus currentStatus = subtask.getStatus();
-
-            if (firstSubtaskStatus == null) {
-                firstSubtaskStatus = currentStatus;
-            }
-
-            if (!firstSubtaskStatus.equals(currentStatus)) {
-                epic.setStatus(TaskStatus.IN_PROGRESS); // Устанавливаем статус эпика IN_PROGRESS
-                return; // Выходим из цикла
-            } else {
-                counterSameStatus++;
-            }
-        }
-
-        // Если все подзадачи имеют одинаковый статус, устанавливаем этот статус для эпика
-        if (counterSameStatus == listOfSubTasks.size()) {
-            epic.setStatus(firstSubtaskStatus);
-        }
-    }
-
 }
